@@ -1,0 +1,8 @@
+-taget
+arm-none-eabi
+-xc
+-ffreestanding
+-nostdinc
+-nostdlib
+-I
+include
