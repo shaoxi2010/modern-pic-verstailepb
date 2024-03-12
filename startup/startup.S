@@ -36,14 +36,30 @@ ENTRY(_start)
 
 	movs r4, #0
 	subs r6, r5
-	ble	.L_loop_done
+	ble	.L_bss_loop_done
 
-.L_loop:
-	subs	r6, #4
+.L_bss_loop:
+	subs r6, #4
 	str	r4, [r5, r6]
-	bgt	.L_loop
-.L_loop_done:
-	
+	bgt	.L_bss_loop
+.L_bss_loop_done:
+
+	/* relocate got section */
+	ldr	r5, =__got_start__
+	add r5, r5, lr
+	ldr r6, =__got_end__
+	add r6, r6, lr
+
+	subs r6, r5
+	ble	.L_got_loop_done
+.L_got_loop:
+	subs r6, #4
+	ldr r4, [r5, r6]
+	add r4, r4, lr
+	str r4, [r5, r6]
+	bgt	.L_got_loop
+.L_got_loop_done:
+
 	/* call the C program */
 	bl	main
 

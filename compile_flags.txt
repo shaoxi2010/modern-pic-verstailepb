@@ -1,4 +1,4 @@
--taget
+-target
 arm-none-eabi
 -xc
 -ffreestanding
@@ -6,3 +6,5 @@ arm-none-eabi
 -nostdlib
 -I
 include
+-I
+include/compiler

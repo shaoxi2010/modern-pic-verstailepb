@@ -1,9 +1,17 @@
 cmake_minimum_required(VERSION 3.18)
 project(pic)
 
+# 获取工具链头文件目录
+execute_process(
+	COMMAND python3 ${CMAKE_SOURCE_DIR}/scripts/toolchaindeploy.py 
+		${CMAKE_C_COMPILER} 
+		${CMAKE_SOURCE_DIR}/include/compiler 
+	TIMEOUT 5
+)
 # FLAGS 声明
+include_directories(${CMAKE_SOURCE_DIR}/include/compiler)
 include_directories(include)
-add_compile_options(-ffreestanding -nostdlib -nostdinc)
+add_compile_options(-ffreestanding -nolibc -nostdinc)
 add_compile_options(-fPIC)
 add_compile_options(-std=gnu99)
 
@@ -15,8 +23,8 @@ add_subdirectory(driver)
 # 生成可执行文件
 add_executable(${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${TARGET_LIBS})
-target_link_options(${PROJECT_NAME} PRIVATE -fPIC)
-target_link_options(${PROJECT_NAME} PRIVATE -ffreestanding -nostdlib -nostdinc)
+target_link_options(${PROJECT_NAME} PRIVATE -fPIE)
+target_link_options(${PROJECT_NAME} PRIVATE -ffreestanding -nolibc -nostartfiles)
 target_link_options(${PROJECT_NAME} PRIVATE -T ${CMAKE_SOURCE_DIR}/scripts/pie.ld)
 target_link_options(${PROJECT_NAME} PRIVATE -Wl,-Map=${CMAKE_SOURCE_DIR}/${PROJECT_NAME}.map)
 if (DEFINED EXTERNSYMBOL_PATH)

@@ -1,3 +1,12 @@
+build:
+	@mkdir -p build
+	@cd build && cmake .. -DCMAKE_TOOLCHAIN_FILE=../scripts/arm-none-eabi.cmake
+	@cd build && make
+
+clean:
+	@rm -rf build
+	@rm *.map
+
 qemu target:
 	qemu-system-arm -machine versatilepb -display none -semihosting -serial stdio -kernel {{target}}
 
