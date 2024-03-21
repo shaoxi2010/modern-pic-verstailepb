@@ -14,6 +14,7 @@ include_directories(include)
 add_compile_options(-ffreestanding -nolibc -nostdinc)
 add_compile_options(-fPIC)
 add_compile_options(-std=gnu99)
+add_compile_options(-ffunction-sections -fdata-sections)
 
 # 子模块
 add_subdirectory(startup)
@@ -30,7 +31,7 @@ target_link_options(${PROJECT_NAME} PRIVATE -Wl,-Map=${CMAKE_SOURCE_DIR}/${PROJE
 if (DEFINED EXTERNSYMBOL_PATH)
 target_link_options(${PROJECT_NAME} PRIVATE -Wl,-R=${EXTERNSYMBOL_PATH})
 endif()
-
+target_link_options(${PROJECT_NAME} PRIVATE -Wl,--gc-sections)
 # 生成二进制文件
 add_custom_command(
     TARGET ${PROJECT_NAME}
@@ -38,4 +39,16 @@ add_custom_command(
     COMMAND ${CMAKE_OBJCOPY} -O binary ${CMAKE_BINARY_DIR}/${PROJECT_NAME} ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.bin
     COMMENT "Make ${PROJECT_NAME} binary"
     VERBATIM
+)
+
+# 生成带bss的二进制文件
+add_custom_command(
+	TARGET ${PROJECT_NAME}
+	POST_BUILD
+	COMMAND python3 ${CMAKE_SOURCE_DIR}/scripts/addbss.py 
+		${CMAKE_BINARY_DIR}/${PROJECT_NAME} 
+		${CMAKE_BINARY_DIR}/${PROJECT_NAME}.bin 
+		${CMAKE_BINARY_DIR}/${PROJECT_NAME}.bss.bin
+	COMMENT "Make ${PROJECT_NAME} binary with bss"
+	VERBATIM
 )
