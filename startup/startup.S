@@ -41,10 +41,11 @@ ENTRY(_start)
 #if defined(FORCE_SVC)
 	/* 强制切换模式，切换后sp、lr属于svc状态 */
 	mrs	r4,cpsr
-	ldr r4, .Lmode
+	str r4, .Lmode
 	bic	r4,#0x1f
 	orr	r4,#0xd3
 	msr	cpsr,r4
+	str sp, .Lstack_svc
 #endif
 
 	/* 设置为内部栈 */
@@ -72,10 +73,11 @@ ENTRY(_start)
 
 #if defined(FORCE_SVC)
 	/* 恢复到之前运行的状态 */
+	ldr sp, .Lstack_svc
 	mrs	r4,cpsr
 	ldr r5,.Lmode
-	and r5,#0x7f
-	bic	r4,#0x7f
+	and r5,#0xff
+	bic	r4,#0xff
 	orr	r4,r5
 	msr	cpsr,r4
 #endif
@@ -88,6 +90,8 @@ ENTRY(_start)
 	.word  0x00000000
 #if defined(FORCE_SVC)
 .Lmode:
+	.word  0x00000000
+.Lstack_svc:
 	.word  0x00000000
 #endif
 ENDPROC(_start)
